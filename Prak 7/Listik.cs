@@ -6,7 +6,6 @@ namespace Prak_7
     {
         private T[] _items;
         private int _length, _capacity;
-        const int DefCapacity = 4;
         public int Length
         {
             get { return _length; }
@@ -14,16 +13,44 @@ namespace Prak_7
 
         public int Capacity
         {
-            get { return _capacity; }
+            get {return _capacity; }
             set
             {
                 if (value < _length)
                 {
                     throw new ArgumentOutOfRangeException();
                 }
-                _capacity = value;
+                else
+                {
+                    _capacity = value;
+                }
             }
         }
+
+        public T this[int index]
+        {
+            get
+            {
+                if (index > _length)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                else
+                {
+                    return _items[index];
+                }
+            }
+            set
+            {
+                if(index > _length)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                _items[index] = value;
+            }
+            
+        }
+
         public Listik()
         {
             _items = new T[0];
@@ -31,13 +58,16 @@ namespace Prak_7
 
         public Listik(int capacity)
         {
-            Capacity = capacity;
-            _items = new T[Capacity];
+            _capacity = capacity;
+            _items = new T[_capacity];
         }
 
-        public Listik(System.Collections.Generic.IEnumerable<T> collection)
+        public Listik(IEnumerable<T> collection)
         {
-            _items = collection.ToArray();
+            T[]temp = collection.ToArray();
+            _items = temp;
+            _length = temp.Length;
+            _capacity = temp.Length;
         }
 
         private void IncreaseCapacity()
@@ -45,13 +75,12 @@ namespace Prak_7
             if (_capacity == 0)
             {
                 _items = new T[2];
-                _capacity = _items.Length;
             }
             else 
             {
                 Array.Resize(ref _items, _capacity * 2);
-                _capacity = _items.Length;
             }
+            _capacity = _items.Length;
         }
 
         public void Add(T item)
@@ -61,20 +90,11 @@ namespace Prak_7
                 IncreaseCapacity();
             }
 
-            if (_length == 0)
-            {
-                _items[0] = item;
-                _length++;
-            }
-
-            else
-            {
-                if (_length < _capacity)
-                {
-                    _items[_length] = item;
-                    _length++;
-                }
-            }
+             if (_length < _capacity)
+             {
+                 _items[_length] = item;
+                 _length++;
+             }
         }
 
         public void AddRange(IEnumerable<T> collection)
@@ -88,34 +108,41 @@ namespace Prak_7
             }
             else
             {
-                for (int i = 0; i < temparr.Length; i++)
+
+                if (_length + temparr.Length > _capacity)
                 {
-                    if (_length < _capacity)
+                    _capacity = _length + temparr.Length;
+                    Array.Resize(ref _items, _capacity);
+                    for (int i = 0; i < temparr.Length; i++)
                     {
-                        _items[_length] = temparr[i];
-                        _length++;
-                    }
-                    else
-                    {
-                        IncreaseCapacity();
                         _items[_length] = temparr[i];
                         _length++;
                     }
                 }
+                else
+                {
+                    for (int i = 0; i < temparr.Length; i++)
+                    {
+                        _items[_length] = temparr[i];
+                        _length++;
+                    }
+                }
+               
             }
         }
 
         public void Clear()
         {
+            Array.Clear(_items, 0, _items.Length);
             _length = 0;
-            _items = new T[0];
         }
+
 
         public int IndexOf(T element)
         {
             for (int i = 0; i < _length; i++)
             {
-                if (object.Equals(_items[i], element))
+                if (EqualityComparer<T>.Default.Equals(_items[i], element))
                 {
                     return i;
                 }
@@ -126,7 +153,9 @@ namespace Prak_7
         public void Remove(int index)
         {
             if (index < 0 || index >= _length)
+            {
                 throw new IndexOutOfRangeException();
+            }
             _items[index] = default;
             for (int i = index; i < _length - 1; i++)
             {
@@ -134,14 +163,13 @@ namespace Prak_7
             }
             _items[_items.Length-1] = default;
             _length--;
-            Array.Resize(ref _items, _length);
         }
 
         public void RemoveAll(T element)
         {
             for (int i = 0; i < _length; i++)
             {
-                if (object.Equals(_items[i], element))
+                if (EqualityComparer<T>.Default.Equals(_items[i], element))
                 {
                     Remove(i);
                     i--;
@@ -151,27 +179,7 @@ namespace Prak_7
 
         public void Reverse()
         {
-            int x;
-            if (_length % 2 == 0)
-            {
-                x = _length / 2;
-                for (int i = 0; i < x; i++)
-                {
-                    T temp = _items[i];
-                    _items[i] = _items[_length - 1 - i];
-                    _items[_length - 1 - i] = temp;
-                }
-            }
-            else if (_length % 2 != 0)
-            {
-                x = _length / 2 + 1;
-                for (int i = 0; i < x; i++)
-                {
-                    T temp = _items[i];
-                    _items[i] = _items[_length - 1 - i];
-                    _items[_length - 1 - i] = temp;
-                }
-            }
+            Array.Reverse(_items);
         }
 
 
